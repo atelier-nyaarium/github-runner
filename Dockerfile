@@ -5,6 +5,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
 	&& apt-get install -y \
 	curl \
+	iputils-ping \
+	git \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
 
@@ -32,12 +34,13 @@ WORKDIR /home/$DOCKER_USER/runner
 RUN curl -sL https://github.com/actions/runner/releases/latest | grep -o -m 1 "https://github.com/actions/runner/releases/download/[^/]*/actions-runner-linux-x64-[^\"]*.tar.gz" > runner.url \
 	&& curl -sL $(cat runner.url) -o runner.tar.gz \
 	&& tar xzf runner.tar.gz \
-	&& rm runner.url runner.tar.gz
+	&& rm runner.url runner.tar.gz \
+	&& chown -R $DOCKER_USER:$DOCKER_USER /home/$DOCKER_USER
 
-RUN ./bin/installdependencies.sh
+RUN ./bin/installdependencies.sh \
+	&& chown -R $DOCKER_USER:$DOCKER_USER /home/$DOCKER_USER
 
 
-RUN chown -R $DOCKER_USER:$DOCKER_USER /home/$DOCKER_USER
 USER $DOCKER_USER
 
 CMD ./config.sh --unattended --url $GITHUB_ORG_URL --pat $GITHUB_TOKEN && ./run.sh
