@@ -1,0 +1,23 @@
+# Uses secrets:
+#   DOCKER_PASSWORD
+#   DOCKER_USERNAME
+
+name: Push (main)
+
+on:
+  push:
+    branches:
+      - main
+
+  schedule:
+    - cron: "0 8 * * 1"
+
+jobs:
+  Build:
+    uses: ./.github/workflows/_build.yml
+    secrets: inherit
+    permissions:
+      actions: read
+      contents: read
+    with:
+      push: true
